@@ -1,0 +1,181 @@
+import { takeEvery, put, takeLatest, delay, fork } from "redux-saga/effects";
+import accountApi from "Api/accountApi";
+import * as types from "../reducer/BudgetReducer";
+import * as actions from "../reducer/BudgetReducer";
+
+function* selectAccountPeriodSaga(action) {
+    try {
+      const { data } = yield accountApi.get("/account/findAccountPeriodList");
+      yield put(actions.selectAccountPeriodSuccess(data));
+    } catch (error) {
+      yield put(actions.selectAccountPeriodFailure(error.message));
+    }
+  }
+  
+  function* selectBudgetListSaga(action) {
+    try {
+      const { data } = yield accountApi.get("/account/findParentBudgetList");
+      yield put(actions.selectBudgetListSuccess(data));
+    } catch (error) {
+      yield put(actions.selectBudgetListFailure(error.message));
+    }
+  }
+  
+  function* selectBudgetDetailListSaga(action) {
+    //console.log(action.payload.budgetcode);
+    try {
+      const { data } = yield accountApi.get("/account/findDetailBudgetList", {
+        params: { budgetCode: action.payload.budgetCode },
+      });
+      yield put(actions.selectBudgetDetailListSuccess(data));
+    } catch (error) {
+      yield put(actions.selectBudgetDetailListFailure(error.message));
+    }
+  }
+  
+  //SELECT_FIND_BUDGET_START
+  function* selectBudgetSaga(action) {
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/findBudget",
+        JSON.stringify(action.payload.budgetData),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      yield put(actions.selectFindBudgetSuccess(data));
+    } catch (error) {
+      yield put(actions.selectFindBudgetFailure(error.message));
+    }
+  }
+  
+  //SELECT_FIND_BUDGET_APPL_START, selectBudgetApplSaga); //예산편성목록  조회
+  function* selectBudgetApplSaga(action) {
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/findBudgetAppl",
+        JSON.stringify(action.payload.budgetData),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      yield put(actions.selectFindBudgetApplSuccess(data));
+    } catch (error) {
+      yield put(actions.selectFindBudgetApplFailure(error.message));
+    }
+  }
+  
+  //SELECT_FIND_BUDGET_ADJUSTMENT_START, selectFindBudgetAdjustmentStart,); //예산조정입력  조회
+  function* selectFindBudgetAdjustmentStart(action) {
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/findBudgetAppl",
+        JSON.stringify(action.payload.budgetData),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      yield put(actions.selectFindBudgetAdjustmentSuccess(data));
+    } catch (error) {
+      yield put(actions.selectFindBudgetAdjustmentFailure(error.message));
+    }
+  }
+  
+  //SELECT_BUDGET_STATUS_START, selectBudgetStatusSaga); //예산실적현황  조회
+  function* selectBudgetStatusSaga(action) {
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/callBudgetStatus",
+        JSON.stringify(action.payload.budgetData),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      yield put(actions.selectBudgetStatusSuccess(data));
+    } catch (error) {
+      yield put(actions.selectBudgetStatusFailure(error.message));
+    }
+  }
+  
+  //SELECT_BUDGET_STATUS_START, selectBudgetStatusSaga); //예산실적현황  조회
+  function* selectBudgetComparisonSaga(action) {
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/findBudgetComparison",
+        JSON.stringify(action.payload.budgetData),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      yield put(actions.selectBudgetComparisonSuccess(data));
+    } catch (error) {
+      yield put(actions.selectBudgetComparisonFailure(error.message));
+    }
+  }
+  
+  //SELECT_BUDGET_COMPARISON_STATUS_START, selectBudgetStatusSaga); //예산실적현황  조회
+  function* selectBudgetComparisonStatusSaga(action) {
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/findBudgetComparisonStatus",
+        JSON.stringify(action.payload.budgetData),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+  
+      yield put(actions.selectbudgetComparisonStatusSuccess(data));
+    } catch (error) {
+      yield put(actions.selectbudgetComparisonStatusFailure(error.message));
+    }
+  }
+  
+  //SELECT_BUDGET_EXCESS_STATUS_START, selectBudgetStatusSaga); //예산초과현황  조회
+  function* selectbudgetExcessStatusSaga(action) {
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/findbudgetExcessStatus",
+        JSON.stringify(action.payload.budgetData),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      yield put(actions.selectbudgetExcessStatusSuccess(data));
+    } catch (error) {
+      yield put(actions.selectbudgetExcessStatusFailure(error.message));
+    }
+  }
+  
+  //INSERT_ORG_BUDGET_START, insertBudgetSaga); //예산계정상세목록  조회
+  function* insertBudgetSaga(action) {
+    //console.log(action.payload.budgetcode);
+    try {
+      const { data } = yield accountApi.post(
+        "/budget/orgBudget",
+        JSON.stringify(action.payload.budgetData),
+        {
+          // params: { budgetData: action.payload.budgetData },
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      console.log(data);
+      yield put(actions.insertOrgBudgetSuccess(data));
+    } catch (error) {
+      yield put(actions.insertOrgBudgetFailure(error.message));
+    }
+  }
+
+export default function* BudgetSaga() {
+    yield takeEvery(types.SELECT_ACCOUNT_PERIOD_START, selectAccountPeriodSaga); //회계연도 조회
+    yield takeEvery(types.SELECT_BUDGET_LIST_START, selectBudgetListSaga); //예산계정목록 조회
+    yield takeEvery(types.SELECT_BUDGET_DETAIL_LIST_START, selectBudgetDetailListSaga, ); //예산계정상세목록  조회
+    yield takeEvery(types.SELECT_FIND_BUDGET_START, selectBudgetSaga); //예산신청목록  조회
+    yield takeEvery(types.INSERT_ORG_BUDGET_START, insertBudgetSaga); //예산계정상세목록  조회
+    yield takeEvery(types.SELECT_FIND_BUDGET_APPL_START, selectBudgetApplSaga); //예산편성목록  조회
+    yield takeEvery(types.SELECT_FIND_BUDGET_ADJUSTMENT_START, selectFindBudgetAdjustmentStart,); //예산조정입력  조회
+    yield takeEvery(types.SELECT_BUDGET_STATUS_START, selectBudgetStatusSaga); //예산실적현황  조회
+    yield takeEvery(types.SELECT_BUDGET_COMPARISON_START, selectBudgetComparisonSaga, ); //예산실적현황  조회
+    yield takeEvery(types.SELECT_BUDGET_COMPARISON_STATUS_START,selectBudgetComparisonStatusSaga,); //예실대비현황 조회
+    yield takeEvery(types.SELECT_BUDGET_EXCESS_STATUS_START,selectbudgetExcessStatusSaga,); //예산초과현황 조회
+}
+//********************************** 2021-02-26 이은기 **********************************

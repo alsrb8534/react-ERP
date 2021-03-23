@@ -1,0 +1,62 @@
+import { takeEvery, put, takeLatest, delay, fork } from "redux-saga/effects";
+import accountApi from "Api/accountApi";
+import hrApi from "Api/hrApi";
+import Axios from "axios";
+import * as types from "../reducer/StatementReducer";
+import createRequestSaga from "util/createRequestSaga";
+import * as api from '../api';
+
+
+  
+ 
+    //************************* 2020-11-26 전기분재무상태표 시작 최지은&노원찬 **********************
+    function* searchPreviousState(action) {
+        try {
+        const { data } = yield accountApi.get("/statement/getFinancialPosition", {
+            params: {
+            toDate: action.params.date,
+            },
+        });
+    
+        yield put({
+            type: types.SUCCESS_PREVIOUS_STATUS,
+            payload: data.financialList,
+        });
+        } catch (error) {
+        yield put({ type: types.FAILURE_PREVIOUS_STATUS, error });
+        }
+    }
+
+  export default function* StatementSaga() {
+    yield takeLatest(types.SEARCH_DETAILTRIAL_REQUEST, searchDetailTrialSaga); 
+
+    yield takeEvery(types.SEARCH_ACCOUNT_LIST_REQUEST, selectAccountSaga); 
+    yield takeEvery(types.SEARCH_ACCOUNT_TINFO_REQUEST, searchAccountInfoSaga); 
+
+    yield takeLatest(types.SEARCH_CASHJOURNAL_REQUEST, searchCashJournalListSaga); 
+    
+    yield takeLatest(types.SEARCH_JOURNAL_FROM_REQUEST, searchJournalFormListSaga);
+    yield takeLatest(types.SEARCH_CUSTOMER_REQUEST, searchCustomerListSaga);
+    yield takeEvery(types.SEARCH_FINANCIAL_REQUEST, searchFinancialSaga);
+    yield takeEvery(types.SEARCH_TOTALTRIAL_REQUEST, searchTotalTrialSaga);
+    yield takeEvery(types.SEARCH_INCOME_REQUEST, selectIncomeSaga); 
+    yield takeEvery(types.SEARCH_COST_REQUEST, selectCostSaga); 
+  
+    //************************* 2020-11-26 전기분재무상태표 시작 최지은&노원찬 *************************
+    yield takeLatest(types.SELECT_PREVIOUS_STATUS, searchPreviousState);
+    
+}
+
+//********************************** 2021-03-16 송화준 **********************************
+
+const searchFinancialSaga = createRequestSaga(types.SEARCH_FINANCIAL_REQUEST, api.searchFinancial);
+const searchTotalTrialSaga = createRequestSaga(types.SEARCH_TOTALTRIAL_REQUEST, api.searchTotalTrial);
+const selectIncomeSaga = createRequestSaga(types.SEARCH_INCOME_REQUEST, api.searchIncomeList);
+const selectCostSaga = createRequestSaga(types.SEARCH_COST_REQUEST, api.selectCost);
+const searchCustomerListSaga = createRequestSaga(types.SEARCH_CUSTOMER_REQUEST, api.searchCustomerList);
+const searchJournalFormListSaga = createRequestSaga(types.SEARCH_JOURNAL_FROM_REQUEST, api.searchJournalFormList);
+const searchCashJournalListSaga = createRequestSaga(types.SEARCH_CASHJOURNAL_REQUEST, api.searchCashJournalList);
+const searchDetailTrialSaga = createRequestSaga(types.SEARCH_DETAILTRIAL_REQUEST, api.searchDetailTrial);
+const selectAccountSaga = createRequestSaga(types.SEARCH_ACCOUNT_LIST_REQUEST, api.selectAccount);
+const searchAccountInfoSaga = createRequestSaga(types.SEARCH_ACCOUNT_TINFO_REQUEST, api.searchAccountInfo);
+

@@ -1,0 +1,209 @@
+import { takeEvery, put, takeLatest, delay, fork } from "redux-saga/effects";
+import accountApi from "Api/accountApi";
+import hrApi from "Api/hrApi";
+import Axios from "axios";
+import * as types from "../reducer/StatementReducer";
+
+//********************************** 2020-08-24 김진호 추가 **********************************
+//일(월)계표
+    function* searchDetailTrial(action) {
+        console.log('일(월)계표 사가 돌아가니');
+        try {
+        const { data } = yield accountApi.get("/statement/detailTrialBalance", {
+            params: {
+            fromDate: action.params.fromDate,
+            toDate: action.params.toDate,
+            },
+        });
+    
+        yield put({ type: types.SEARCH_DETAILTRIAL_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_DETAILTRIAL_FAILURE, error });
+        }
+    }
+    //********************************** 2020-08-24 김진호 끝 **********************************
+    //================================= 2020-08-25 계정별원장 조편백  시작 =====================================
+
+    function* selectAccount(action) {
+        console.log("계정조회 1 : " + action.params.accountName);
+        console.log("계정조회 2 : " + action.params.accountCode);
+        try {
+        const { data } = yield accountApi.get(
+            "http://localhost:8282/acc/account/getAccount",
+            {
+            params: {
+                accountName: action.params.accountName,
+                accountCode: action.params.accountCode,
+            },
+            },
+        );
+        //console.log("////" + JSON.stringify(data));
+        yield put({ type: types.SEARCH_ACCOUN_LIST_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_ACCOUN_LIST_FAILURE, error });
+        }
+    }
+  
+  function* searchAccountInfo(action) {
+    console.log("계정별원장 Saga 실행 : " + JSON.stringify(action));
+    try {
+      const { data } = yield accountApi.get("/account/getLedgerbyAccountInfo", {
+        params: {
+          startDate: action.params.startDate,
+          endDate: action.params.endDate,
+          accountCode: action.params.accountCode,
+        },
+      });
+      yield put({ type: types.SEARCH_ACCOUN_TINFO_SUCCESS, data });
+    } catch (error) {
+      yield put({ type: types.SEARCH_ACCOUN_TINFO_FAILURE, error });
+    }
+  }
+  
+  //================================== 2020-08-25 계정별원장 조편백  끝 =====================================
+
+  //********************************** 2020-08-24 현금출납장 정대현 추가 **********************************
+    function* searchCashJournalList(action) {
+        try {
+        const { data } = yield Axios.post(
+            `http://localhost:4000/erp/acc/cashJournal`,
+            {
+            fromDate: action.params.fromDate,
+            toDate: action.params.toDate,
+            },
+        );
+        yield put({ type: types.SEARCH_CASHJOURNAL_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_CASHJOURNAL_SUCCESS, error });
+        }
+    }
+    //********************************** 2020-08-24 정대현 추가 여기까지**********************************
+
+    function* searchJournalFormList(action) {
+        try {
+        const { data } = yield accountApi.get("/account/journal", {
+            params: {
+            startDate: action.params.startDate,
+            endDate: action.params.endDate,
+            },
+        });
+        yield put({ type: types.SEARCH_JOURNAL_FROM_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_JOURNAL_FROM_FAILURE, error });
+        }
+    }
+    
+    function* searchCustomerList(action) {
+        try {
+        const { data } = yield hrApi.get("/basicInfo/searchCustomer", {
+            params: {
+            searchCondition: action.params.searchCondition,
+            workplaceCode: action.params.workplaceCode,
+            },
+        });
+    
+        yield put({ type: types.SEARCH_CUSTOMER_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_CUSTOMER_FAILURE, error });
+        }
+    }
+
+    function* searchFinancial(action) {
+        try {
+        const { data } = yield accountApi.get("/statement/getFinancialPosition", {
+            params: {
+            toDate: action.params.date,
+            },
+        });
+    
+        yield put({ type: types.SEARCH_FINANCIAL_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_FINANCIAL_FAILURE, error });
+        }
+    }
+    
+    function* searchTotalTrial(action) {
+        try {
+        const { data } = yield accountApi.get("/statement/getTotalTrialBalance", {
+            params: {
+            toDate: action.params.date,
+            },
+        });
+    
+        yield put({ type: types.SEARCH_TOTALTRIAL_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_TOTALTRIAL_FAILURE, error });
+        }
+    }
+    
+    //================================ 2020-08-24  손익계산서  조편백 시작 ====================================
+    function* searchIncomeList(action) {
+        //console.log("/////" + JSON.stringify(action));
+        try {
+        const { data } = yield accountApi.get("/statement/incomeStatement", {
+            params: {
+            toDate: action.params.date,
+            },
+        });
+        console.log("손익계산서 리턴턴턴  : " + data);
+        yield put({ type: types.SEARCH_INCOME_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_INCOME_FAILURE, error });
+        }
+    }
+
+  //================================ 2020-08-24  손익계산서  조편백 시작 ====================================
+    function* searchCostList(action) {
+        //console.log("/////" + JSON.stringify(action));
+        try {
+        const { data } = yield accountApi.get("/statement/costStatement", {
+            params: {
+            toDate: action.params.date,
+            },
+        });
+        yield put({ type: types.SEARCH_COST_SUCCESS, data });
+        } catch (error) {
+        yield put({ type: types.SEARCH_COST_FAILURE, error });
+        }
+    }
+
+    //************************* 2020-11-26 전기분재무상태표 시작 최지은&노원찬 **********************
+    function* searchPreviousState(action) {
+        try {
+        const { data } = yield accountApi.get("/statement/getFinancialPosition", {
+            params: {
+            toDate: action.params.date,
+            },
+        });
+    
+        yield put({
+            type: types.SUCCESS_PREVIOUS_STATUS,
+            payload: data.financialList,
+        });
+        } catch (error) {
+        yield put({ type: types.FAILURE_PREVIOUS_STATUS, error });
+        }
+    }
+
+  export default function* StatementSaga() {
+      // <===============  일(월)계표  ================
+    yield takeLatest(types.SEARCH_DETAILTRIAL_REQUEST, searchDetailTrial); // 일(월)계표 2020-08-24 김진호 추가
+
+    yield takeEvery(types.SEARCH_ACCOUNT_LIST_REQUEST, selectAccount); // <=======  2020-09-12 계정별원장다이알로그 조편백  =============
+    yield takeEvery(types.SEARCH_ACCOUN_TINFO_REQUEST, searchAccountInfo); // <=======  2020-08-25 계정별원장 조편백  =============
+
+    yield takeLatest(types.SEARCH_CASHJOURNAL_REQUEST, searchCashJournalList); //*********** 2020-08-24 정대현 추가 **********
+    
+    yield takeLatest(types.SEARCH_JOURNAL_FROM_REQUEST, searchJournalFormList);
+    yield takeLatest(types.SEARCH_CUSTOMER_REQUEST, searchCustomerList);
+    yield takeEvery(types.SEARCH_FINANCIAL_REQUEST, searchFinancial);
+    yield takeEvery(types.SEARCH_TOTALTRIAL_REQUEST, searchTotalTrial);
+    yield takeEvery(types.SEARCH_INCOME_REQUEST, searchIncomeList); //<------------ 2020-08-24 손익계산서 조편백
+    yield takeEvery(types.SEARCH_COST_REQUEST, searchCostList); //<------------ 2020-08-24 손익계산서 조편백
+  
+    //************************* 2020-11-26 전기분재무상태표 시작 최지은&노원찬 *************************
+    yield takeLatest(types.SELECT_PREVIOUS_STATUS, searchPreviousState);
+    
+}
+
+//********************************** 2021-02-24 이은기 **********************************

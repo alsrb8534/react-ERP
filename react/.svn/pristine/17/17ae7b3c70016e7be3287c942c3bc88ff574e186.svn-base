@@ -1,0 +1,59 @@
+/* import "ag-grid-community/dist/styles/ag-grid.css";
+import "ag-grid-community/dist/styles/ag-theme-material.css"; */
+import Axios from 'axios';
+import React, { useState } from 'react';
+import DeployHead from './DeployHead';
+import DeployGrid from './DeployGrid';
+
+const Deploy = () => {
+    const [bomData, setBomData] = useState(null);
+    const [itemCode, setItemCode] = useState(null);
+    const [divisionCode, setDivisionCode] = useState(null);
+    const [deployCondition, setDeployCondition] = useState(null);     
+
+    const getBomDeploy = async() =>
+        await Axios.get(
+            'http://localhost:8282/logi/purchase/searchBomDeploy.do', {
+                params : {
+                    deployCondition: deployCondition,
+                    itemCode: itemCode,
+                    itemClassificationCondition: divisionCode,
+                }
+            }
+        )
+    .then(response => {
+        setBomData(response.data);
+    })
+    .catch(e => {
+        console.log("조회 실패 : ",e);
+    });    
+
+    const searchBom = () => {
+        if(itemCode === null && deployCondition === null) {
+            alert("품목코드 검색을 먼저 해주시고, BOM 검색조건을 선택해주세요.");
+            return;
+        }else if(deployCondition === null) {
+            alert("BOM 검색조건을 선택해주세요. \n(정전개를 할건지 역전개를 할건지 선택해주세요.)");
+            return;
+        }else if(itemCode === null) {
+            alert("품목코드검색을 먼저해주세요.");
+            return;
+        }
+        getBomDeploy();
+    }; 
+
+    const props = {setDeployCondition, setItemCode, setDivisionCode, searchBom, bomData};  
+    
+    return (
+        <>            
+            <DeployHead trCondition = {setDeployCondition}
+                trItemCode = {setItemCode}
+                trDivisionCode = {setDivisionCode}
+                searchBom = {searchBom}
+            />            
+            <DeployGrid props = {props} />            
+        </>
+    );
+};
+
+export default Deploy;

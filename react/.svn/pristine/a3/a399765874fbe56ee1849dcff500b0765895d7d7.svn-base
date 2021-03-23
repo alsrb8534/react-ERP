@@ -1,0 +1,55 @@
+import Axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import MyGrid from 'util/LogiUtil/MyGrid';
+
+const ItemDialog = props => {
+    const [list, setList] = useState([]);
+    const column = {
+        columnDefs: [
+            { headerName: '품목코드', field: 'itemCode', width: 100 },
+            { headerName: '품목명', field: 'itemName', width: 100 }
+        ]
+    };
+
+    const onCellClicked = params => {
+        //console.log(params.data);
+        props.onCellClicked(params);
+        props.close();
+    };
+    useEffect(() => {
+        Axios.get('http://localhost:8282/logi/base/codeList.do', {
+            params: {
+                divisionCode: 'IT-_I'
+            }
+        })
+            .then(response => {
+                let detailCodeList = response.data.detailCodeList;
+
+                let renameDetailCodeList = detailCodeList.map(item => {
+                    let rename = [];
+                    rename.itemCode = item.detailCode;
+                    rename.itemName = item.detailCodeName;
+                    return rename;
+                });
+
+                setList(renameDetailCodeList);
+                // console.log(renameDetailCodeList);
+            })
+            .catch(e => {
+                console.log(e);
+            });
+    }, []);
+
+    return (
+        <MyGrid
+            style={{ height: '10vh' }}
+            column={column}
+            title={'품목명 검색'}
+            list={list}
+            onCellClicked={onCellClicked}
+            rowSelection="single"
+        />
+    );
+};
+
+export default ItemDialog;

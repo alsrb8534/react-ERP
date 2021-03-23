@@ -1,0 +1,8 @@
+import axios from 'Api/logiApi';
+
+export const inspection = (param) =>
+    axios.put("/purchase/inspection.do", 
+    { sendData: param },
+    {  headers: {  "Content-Type": "application/json" }},
+    );
+

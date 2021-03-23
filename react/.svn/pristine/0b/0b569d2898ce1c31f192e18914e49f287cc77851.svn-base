@@ -1,0 +1,50 @@
+//계정과목 조회
+export const SEARCH_ACCOUNT_REQUEST = "SEARCH_ACCOUNT_REQUEST-Saga";
+export const SEARCH_ACCOUNT_SUCCESS = "SEARCH_ACCOUNT_SUCCESS-Reducer";
+export const SEARCH_ACCOUNT_FAILURE = "SEARCH_ACCOUNT_FAILURE-Reducer";
+
+//========================================= 2020-11-28 계정과목관리  유길현 시작 ==============================================
+export const BATCH_ACCOUNT_LIST_REQUEST = "src/ERP/ACCOUNT/Saga/Saga/BATCH_ACCOUNT_LIST_REQUEST";
+export const BATCH_ACCOUNT_LIST_FAILURE = "src/ERP/ACCOUNT/Saga/Saga/BATCH_ACCOUNT_LIST_FAILURE";
+
+//========================================= 2020-09-01 거래처 관리 조편백  시작 ==============================================
+export const BATCH_ACCOUNT_REQUEST = "src/ERP/ACCOUNT/Saga/Saga/BATCH_ACCOUNT_REQUEST";
+export const BATCH_ACCOUNT_FAILURE = "src/ERP/ACCOUNT/Saga/Saga/BATCH_ACCOUNT_FAILURE";
+
+const initialState = {
+    error: "",
+    accountList: [],
+};
+
+const BaseReducer = (state = initialState, action) => {
+    switch (action.type) {
+        // 계정과목 조회
+        case SEARCH_ACCOUNT_SUCCESS:
+            return {
+            ...state,
+            accountList: action.data,
+            };
+        case SEARCH_ACCOUNT_FAILURE:
+            return {
+            ...state,
+            error: action.error,
+            };
+        //========================================= 2020-11-27 계정과목관리 유길현  시작  =============================
+        case BATCH_ACCOUNT_LIST_FAILURE:
+            return {
+            ...state,
+            error: action.error,
+            };
+        //========================================= 2020-11-27 계정과목관리 유길현  끝  =============================
+        case BATCH_ACCOUNT_FAILURE:
+        return {
+            ...state,
+            error: action.error,
+        };
+        default:
+        return { ...state };
+    }
+}
+
+export default BaseReducer;
+{/* ///////////////////////// 2021-03-02 이은기  /////////////////////////// */}

@@ -1,0 +1,46 @@
+import Axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import MyGrid from 'util/LogiUtil/MyGrid';
+
+function CustomerSearchDialog(props) {
+    const [list, setList] = useState([]);
+    const column = {
+        columnDefs: [
+            { headerName: '코드', field: 'detailCode', width: 100 },
+            { headerName: '코드명', field: 'detailCodeName', width: 100 },
+            { headerName: '사용여부', field: 'codeUseCheck', width: 50 }
+        ]
+    };
+    const onCellClicked = params => {
+        //console.log(params.data);
+        props.onCellClicked(params);
+        props.close();
+    };
+    useEffect(() => {
+        Axios.get('http://localhost:8282/logi/base/codeList.do', {
+            params: {
+                divisionCode: 'CL-01'
+            }
+        })
+            .then(response => {
+                setList(response.data.detailCodeList);
+                //console.log(response.data.detailCodeList)
+            })
+            .catch(e => {
+                console.log(e);
+            });
+    }, []);
+
+    return (
+        <MyGrid
+            style={{ height: '10vh' }}
+            column={column}
+            title={'거래처 검색'}
+            list={list}
+            onCellClicked={onCellClicked}
+            rowSelection="single"
+        />
+    );
+}
+
+export default CustomerSearchDialog;

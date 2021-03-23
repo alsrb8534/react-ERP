@@ -1,0 +1,177 @@
+//2020-12-02 64기 정준혁
+import React, { useState, useCallback } from 'react';
+import axios from 'axios';
+import MyCalendar from 'util/LogiUtil/MyCalendar';
+import MyGrid from 'util/LogiUtil/MyGrid';
+import { Button } from '@material-ui/core';
+import moment from 'moment';
+import orderListColumn from './orderListColumn';
+import MyDialog from 'util/LogiUtil/MyDialog';
+import ShowOrderDialog from './ShowOrderDialog';
+import OptionOrderDialog from './OptionOrderDialog';
+import Swal from 'sweetalert2';
+const OrderRegisterContainer = () => {
+    let today = moment(new Date()).format('yyyy-MM-DD');
+    const [startDate, setStartDate] = useState();
+    const [endDate, setEndDate] = useState();
+    const [orderList, setOrderList] = useState([]);
+    const [orderOpenList, setOrderOpenList] = useState([]);
+    const [orderListgridRow, setOrderListgridRow] = useState();
+    const [showOrderDialog, setShowOrderDialog] = useState(false);
+    const [optionOrderDialog, setOptionOrderDialog] = useState(false);
+    const [ mrpGatheringNoList, setMrpGatheringNoList] = useState();
+
+    const basicInfo = (startDate, endDate) => {
+        setStartDate(startDate);
+        setEndDate(endDate);
+    };
+
+    const showClose = () => {
+        setShowOrderDialog(false);
+    };
+    const optionClose = () => {
+        setOptionOrderDialog(false);
+    };
+    const onChangeDate = e => {
+        e.target.id === 'startDate' ? setStartDate(e.target.value) : setEndDate(e.target.value);
+    };
+
+    const onClickGetOrderList = useCallback(() => {
+        axios
+            .get('http://localhost:8282/logi/purchase/getOrderList.do', {
+                params: {
+                    startDate: startDate,
+                    endDate: endDate
+                }
+            })
+            .then(({ data }) => {
+                if (data.errorCode < 0) {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: data.errorMsg
+                    });
+                }
+                setOrderList(data.gridRowJson);
+            })
+            .catch(e => {
+                Swal.fire({
+                    icon: 'error',
+                    title: e
+                });
+            });
+    }, [startDate, endDate]);
+
+    const orderGirdApi = params => {
+        setOrderListgridRow(params.api);
+    };
+
+
+
+
+    const onClickOrderOpen = () => {
+        const selectNodes = orderListgridRow.getSelectedNodes();
+        const rowsCount = orderListgridRow.getDisplayedRowCount();
+        if (rowsCount === 0) {
+            return Swal.fire({
+                icon: 'error',
+                title: '조회 후 진행해 주세요'
+            });
+        } else if (selectNodes.length === 0) {
+            return Swal.fire({
+                icon: 'error',
+                title: '선택 후 진행해 주세요'
+            });
+        }
+
+        let mrpGatheringNoArr = [];
+        for (let selectNode of selectNodes) {
+            mrpGatheringNoArr.push(selectNode.data.mrpGatheringNo);
+        }
+        axios
+            .get('http://localhost:8282/logi/purchase/showOrderDialog', {
+                params: {
+                    mrpGatheringNoList: mrpGatheringNoArr.join(',')
+                }
+            })
+            .then(({ data }) => {
+                if (data.errorCode < 0) {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: data.errorMsg
+                    });
+                }
+                
+                console.log("mrpGatheringNoList")
+                console.log(mrpGatheringNoArr)
+                setMrpGatheringNoList(mrpGatheringNoArr);
+                setOrderOpenList(data.result);
+                setShowOrderDialog(true);
+            })
+            .catch(e => {
+                Swal.fire({
+                    icon: 'error',
+                    title: e
+                });
+            });
+    };
+    const onClickOptionOrderOpen = useCallback(() => {
+        setOptionOrderDialog(true);
+    }, []);
+    return (
+        <>
+            <MyGrid
+                column={orderListColumn}
+                title={'발주 및 재고처리'}
+                list={orderList}
+                onCellClicked={undefined}
+                rowSelection="multiple"
+                api={orderGirdApi}
+            >
+                <div style={{ float: 'left' }}>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        style={{ marginRight: '1vh', marginTop: '1vh' }}
+                        onClick={onClickOrderOpen}
+                    >
+                        모의재고처리 및 취합발주
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        style={{ marginRight: '1vh', marginTop: '1vh' }}
+                        onClick={onClickOptionOrderOpen}
+                    >
+                        임의 발주
+                    </Button>
+                </div>
+                <MyCalendar onChangeDate={onChangeDate} basicInfo={basicInfo} />
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    style={{ marginTop: '1vh' }}
+                    onClick={onClickGetOrderList}
+                >
+                    재고처리/발주필요 목록조회
+                </Button>
+            </MyGrid>
+            <MyDialog open={showOrderDialog} close={showClose} maxWidth={'150%'}>
+                <div>
+                    <ShowOrderDialog
+                        girdData={orderOpenList}
+                        close={showClose}
+                        onClickGetOrderList={onClickGetOrderList}
+                        mrpGatheringNoList={mrpGatheringNoList}
+                    />
+                </div>
+            </MyDialog>
+            <MyDialog open={optionOrderDialog} close={optionClose}>
+                <div>
+                    <OptionOrderDialog close={optionClose} />
+                </div>
+            </MyDialog>
+        </>
+    );
+};
+
+export default OrderRegisterContainer;

@@ -1,0 +1,21 @@
+import { Button } from '@material-ui/core';
+import React, { useState } from 'react';
+import MyGrid from 'util/LogiUtil/MyGrid';
+import MyDialog from 'util/LogiUtil/MyDialog';
+import Axios from 'axios';
+import WorkOrderDialog from './WorkOrderDialog';
+import Swal from 'sweetalert2';
+import Release from './Release'
+
+function WorkInstruction(props) {
+
+    return (
+        <>
+            <div>
+                <Release/>
+            </div>
+        </>
+    );
+}
+
+export default WorkInstruction;

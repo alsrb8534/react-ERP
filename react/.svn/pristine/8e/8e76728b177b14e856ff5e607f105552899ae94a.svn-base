@@ -1,0 +1,12 @@
+import { all } from 'redux-saga/effects';
+import AttdSaga from 'ERP/HR/attd/saga/AttdSaga';
+import BaseSaga from 'ERP/HR/base/saga/BaseSaga';
+import SalarySaga from 'ERP/HR/salary/saga/SalarySaga';
+import EmpSaga from 'ERP/HR/emp/saga/EmpSaga';
+import PostsSaga from 'ERP/HR/board/saga/PostsSaga';
+import PostSaga from 'ERP/HR/board/saga/PostSaga';
+
+export default function* HrRootSaga() {
+    // all 함수는 여러 사가를 합쳐주는 역할을 합니다.
+    yield all([AttdSaga(), BaseSaga(), SalarySaga(), EmpSaga(), PostsSaga(), PostSaga()]);
+}

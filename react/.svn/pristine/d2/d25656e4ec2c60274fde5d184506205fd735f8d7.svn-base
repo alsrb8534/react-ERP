@@ -1,0 +1,100 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import axios from 'axios';
+import MyCalendar from 'util/LogiUtil/MyCalendar';
+import MyGrid from 'util/LogiUtil/MyGrid';
+import { TextField, Button, FormControl } from '@material-ui/core';
+import moment from 'moment';
+import orderListColumn from './orderListColumn';
+import MyDialog from 'util/LogiUtil/MyDialog';
+import ShowOrderDialog from './ShowOrderDialog';
+import Swal from 'sweetalert2';
+import HrAppBar from 'ERP/HR/util/HrAppBar';
+import MySelect from 'ERP/HR/util/MySelect';
+
+const OptionOrder = ({ close }) => {
+    const [menuItemMap, setMenuItemMap] = useState([]);
+    const [checkItem, setCheckItem] = useState(null);
+    const [checkAmount, setCheckAmount] = useState('');
+    useEffect(() => {
+        axios
+            .get('http://localhost:8282/logi/logisticsInfo/getOptionItemList.do')
+            .then(({ data }) => {
+                if (data.errorCode < 0) {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: data.errorMsg
+                    });
+                }
+                const dataJsonList = data.gridRowJson;
+                let itemList = [];
+                for (let dataJson of dataJsonList) {
+                    itemList.push({ value: dataJson.itemCode, key: dataJson.itemName });
+                }
+                setMenuItemMap(itemList);
+            })
+            .catch(e => {
+                Swal.fire({
+                    icon: 'error',
+                    title: e
+                });
+            });
+    }, []);
+    const selectonChange = useCallback(e => {
+        setCheckItem(e.target.value);
+    }, []);
+    const amountChange = useCallback(e => {
+        setCheckAmount(e.target.value);
+    }, []);
+    const onClickOptionOrder = useCallback(() => {
+        axios
+            .get('http://localhost:8282/logi/purchase/optionOrder.do', {
+                params: {
+                    itemCode: checkItem,
+                    itemAmount: checkAmount
+                }
+            })
+            .then(({ data }) => {
+                if (data.errorCode < 0) {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: data.errorMsg
+                    });
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: data.errorMsg
+                });
+            })
+            .catch(e => {
+                Swal.fire({
+                    icon: 'error',
+                    title: e
+                });
+            });
+        close();
+    }, [checkAmount, checkItem, close]);
+    return (
+        <>
+            <HrAppBar title="임의 발주" />
+            <div align="center">
+                <FormControl style={{ minWidth: '250px' }}>
+                    <MySelect menuItemMap={menuItemMap} selectonChange={selectonChange} />
+                </FormControl>
+                <br />
+                <FormControl style={{ minWidth: '250px' }}>
+                    <TextField label="수량" value={checkAmount} onChange={amountChange} />
+                </FormControl>
+                <br />
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    style={{ marginRight: '1vh', marginTop: '1vh' }}
+                    onClick={onClickOptionOrder}
+                >
+                    임의 발주
+                </Button>
+            </div>
+        </>
+    );
+};
+export default OptionOrder;

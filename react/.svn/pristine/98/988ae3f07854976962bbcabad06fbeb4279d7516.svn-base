@@ -1,0 +1,29 @@
+import axios from 'Api/logiApi';
+
+    export const downloadReport = (param) =>
+    {
+        return axios.get("http://localhost:8282/logi/sales/logisticExel",
+        {
+            params : param
+        });
+    }
+
+    export const searchEstimate = 
+    async param => {
+        const result = await axios.get("http://localhost:8282/logi/sales/searchEstimates",
+    {params : param});
+
+return result.data;
+
+}
+
+
+export const estimateCellClicked =
+async params =>{
+    const result = await axios.get("http://localhost:8282/logi/searchEstimateDetail.do",{
+                  params: {
+                      estimateNo: params.data.estimateNo
+                  }
+              });
+              return result.data;
+            }

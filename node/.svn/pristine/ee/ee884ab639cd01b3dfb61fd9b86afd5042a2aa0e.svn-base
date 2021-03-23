@@ -1,0 +1,84 @@
+{
+  "_args": [
+    [
+      "snake-camel@1.0.6",
+      "C:\\Users\\wkdrn\\Desktop\\node\\node-64th"
+    ]
+  ],
+  "_from": "snake-camel@1.0.6",
+  "_id": "snake-camel@1.0.6",
+  "_inBundle": false,
+  "_integrity": "sha512-RjKNy0ixnpH2z5eRa5IZcnXvq4pVNFYIlnHXvsYOYBk4aYEYnCalUpoHt1k5dvLlG0SKWqX2YXo3+Bvmam84Fw==",
+  "_location": "/snake-camel",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "snake-camel@1.0.6",
+    "name": "snake-camel",
+    "escapedName": "snake-camel",
+    "rawSpec": "1.0.6",
+    "saveSpec": null,
+    "fetchSpec": "1.0.6"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/snake-camel/-/snake-camel-1.0.6.tgz",
+  "_spec": "1.0.6",
+  "_where": "C:\\Users\\wkdrn\\Desktop\\node\\node-64th",
+  "author": {
+    "name": "Shunsuke Watanabe",
+    "email": "craftgear@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/craftgear/snake-camel/issues"
+  },
+  "description": "convert object keys from/to camelCase and snake_case",
+  "devDependencies": {
+    "@types/jest": "^24.9.1",
+    "@types/node": "^11.15.31",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^26.4.1",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.3.0",
+    "typescript": "^3.9.7"
+  },
+  "homepage": "https://github.com/craftgear/snake-camel#readme",
+  "jest": {
+    "preset": "ts-jest",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest"
+    },
+    "testPathIgnorePatterns": [
+      "\\.snap$",
+      "built",
+      "<rootdir>/node_modules"
+    ],
+    "cacheDirectory": ".jest/cache"
+  },
+  "keywords": [
+    "camelCase",
+    "snake_case"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "name": "snake-camel",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/craftgear/snake-camel.git"
+  },
+  "scripts": {
+    "build": "tsc --declaration",
+    "test": "jest --maxWorkers=2 src"
+  },
+  "types": "lib/index.d.ts",
+  "version": "1.0.6"
+}
